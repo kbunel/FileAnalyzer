@@ -1,6 +1,6 @@
 <?php
 
-namespace FileAnalyzer\Manager;
+namespace FileAnalyzer\Services;
 
 use FileAnalyzer\Analyzer\DiversAnalyzer;
 use FileAnalyzer\Analyzer\FileExtensionAnalyzer;
@@ -8,7 +8,7 @@ use FileAnalyzer\Analyzer\ClassImplementationAnalyzer;
 use FileAnalyzer\Analyzer\ClassExtensionAnalyzer;
 use FileAnalyzer\Analyzer\ServiceAnalyzer;
 use FileAnalyzer\Services\Tools;
-use FileAnalyzer\Manager\Logger;
+use FileAnalyzer\Services\Logger;
 use FileAnalyzer\Model\FileAnalyzed;
 
 class FileAnalyzer

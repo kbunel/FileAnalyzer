@@ -1,6 +1,6 @@
 <?php
 
-namespace FileAnalyzer\Manager;
+namespace FileAnalyzer\Services;
 
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Console\Helper\ProgressBar;

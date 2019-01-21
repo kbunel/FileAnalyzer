@@ -3,7 +3,6 @@
 namespace FileAnalyzer\Analyzer;
 
 use FileAnalyzer\Services\Tools;
-use FileAnalyzer\Manager\FileManager;
 use Symfony\Component\Yaml\Yaml;
 
 class ServiceAnalyzer
@@ -17,12 +16,17 @@ class ServiceAnalyzer
     public const KERNEL_EVENT_LISTENER            = 'kernel.event_listener';
     public const KERNEL_EVENT_SUBSCRIBER          = 'kernel.event_subscriber';
 
-    private $tools;
-    private $configs = [];
+    // TODO -> put this in Configuration files so it can be customized
+    private const CONFIG_FILES                    = ['app/config/config.yml', 'app/config/config_test.yml'];
 
-    public function __construct(Tools $tools)
+    private $tools;
+    private $servicesFilePath;
+    private $services;
+
+    public function __construct(Tools $tools, ?string $servicesFilePath = null)
     {
         $this->tools = $tools;
+        $this->servicesFilePath = $servicesFilePath;
     }
 
     public function __call(string $method, array $args)
@@ -34,15 +38,18 @@ class ServiceAnalyzer
 
     private function isTagged(string $filePath, string $tag): bool
     {
-        $pathInfo = pathInfo($filePath);
         $namespace = $this->tools->getNamespace($filePath);
-        $services = $this->getServicesFromConfig();
 
-        if (!isset($services[$namespace], $services[$namespace]['tags'])) {
+        if (!$this->services) {
+            $this->services = $this->getServicesFromFiles($this->servicesFilePath ? [$this->servicesFilePath] : self::CONFIG_FILES);
+        }
+
+        if (!isset($this->services[$namespace], $this->services[$namespace]['tags'])) {
             return false;
         }
 
-        foreach ($services[$namespace]['tags'] as $t) {
+
+        foreach ($this->services[$namespace]['tags'] as $t) {
             if ($t['name'] == $tag) {
                 return true;
             }
@@ -51,10 +58,10 @@ class ServiceAnalyzer
         return false;
     }
 
-    private function getServicesFromConfig(): array
+    private function getServicesFromFiles(array $files): array
     {
         $services = [];
-        $configs = $this->getConfigs();
+        $configs = $this->getContent($files);
 
         foreach ($configs as $config) {
             $services += array_filter($config, function(string $key) {
@@ -65,12 +72,8 @@ class ServiceAnalyzer
         return $services['services'];
     }
 
-    private function getConfigs(array $files = FileManager::CONFIG_FILES): array
+    private function getContent(array $files): array
     {
-        if ($this->configs) {
-            return $this->configs;
-        }
-
         $configs = [];
         foreach ($files as $file) {
             $configs[$file] = Yaml::parseFile($file);
@@ -79,12 +82,10 @@ class ServiceAnalyzer
                 foreach ($configs[$file]['imports'] as $import) {
                     $directory = pathinfo($file)['dirname'];
                     $filePath = $directory . DIRECTORY_SEPARATOR . $import['resource'];
-                    $configs[$filePath] = $this->getConfigs([$filePath]);
+                    $configs[$filePath] = $this->getContent([$filePath]);
                 }
             }
         }
-
-        $this->configs = $configs;
 
         return $configs;
     }

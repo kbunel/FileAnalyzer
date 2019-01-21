@@ -1,12 +1,13 @@
 <?php
 
-namespace FileAnalyzer\Manager;
+namespace FileAnalyzer\Services;
 
-use FileAnalyzer\Manager\FileManager;
 use FileAnalyzer\Model\FileAnalyzed;
 
 class Tools
 {
+    private const SRC = 'src';
+
     public function getNamespace(string $filePath): ?string
     {
         $lines = file($filePath, FILE_SKIP_EMPTY_LINES);
@@ -45,6 +46,18 @@ class Tools
         return implode('_', $ret);
     }
 
+    public function camelCaseToSpace(string $str): string
+    {
+        preg_match_all('!([A-Z][A-Z0-9]*(?=$|[A-Z][a-z0-9])|[A-Za-z][a-z0-9]+)!', $str, $matches);
+        $ret = $matches[0];
+
+        foreach ($ret as &$match) {
+          $match = $match == strtoupper($match) ? strtolower($match) : lcfirst($match);
+        }
+
+        return implode(' ', $ret);
+    }
+
     public function getDeeperParentClass(string $filePath)
     {
         if (is_null($reflector = $this->getReflectionClass($filePath))) {
@@ -75,7 +88,7 @@ class Tools
         $rootPassed = false;
         $bundlePassed = false;
         foreach ($folders as $folder) {
-            if ($folder == FileManager::SRC) {
+            if ($folder == self::SRC) {
                 $rootPassed = true;
 
                 continue;
