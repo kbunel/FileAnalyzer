@@ -72,41 +72,6 @@ class DiversAnalyzer
         return preg_match('/Resources\/public/', $filePath);
     }
 
-    public function isUnknownFromClass(string $filePath): bool
-    {
-        $lines = file($filePath, FILE_SKIP_EMPTY_LINES);
-        $services = [];
-        foreach ($lines as $line) {
-            $line = trim($line);
-
-            if (preg_match('/^use/', $line)) {
-                $services[] = str_replace(';', '', preg_replace('/^use /', '', $line));
-            }
-
-            if (preg_match('/^class/', $line)) {
-                if (count(explode(' ', $line)) == 2) {
-                    return true;
-                } elseif (preg_match('/implements/', $line)) {
-                    if (count(explode(' ', $line)) != 4) {
-                        return false;
-                    }
-
-                    $interface = explode(' ', $line)[3];
-
-                    foreach ($services as $service) {
-                        if (preg_match('/' . $interface . '$/', $service)) {
-                            return preg_match('/^Staffmatch/', $service);
-                        }
-                    }
-
-                    return file_exists(pathinfo($filePath)['dirname'] . DIRECTORY_SEPARATOR . $interface . '.php');
-                }
-            }
-        }
-
-        return false;
-    }
-
     public function isEntity(string $filePath): bool
     {
         $lines = file($filePath, FILE_SKIP_EMPTY_LINES);

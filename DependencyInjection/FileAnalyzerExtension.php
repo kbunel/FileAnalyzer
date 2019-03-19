@@ -17,9 +17,14 @@ class FileAnalyzerExtension extends Extension
         $configuration = new Configuration();
         $config = $this->processConfiguration($configuration, $configs);
 
-        $serviceAnalyzerDefinition = $container->getDefinition('FileAnalyzer\Analyzer\ServiceAnalyzer');
         if (isset($config['services_file_path'])) {
+            $serviceAnalyzerDefinition = $container->getDefinition('FileAnalyzer\Analyzer\ServiceAnalyzer');
             $serviceAnalyzerDefinition->setArgument('$servicesFilePath', $config['services_file_path']);
+        }
+
+        if (isset($config['from_path'])) {
+            $serviceAnalyzerDefinition = $container->getDefinition('FileAnalyzer\Services\FileAnalyzer');
+            $serviceAnalyzerDefinition->setArgument('$customKinds', $config['from_path']);
         }
     }
 }
