@@ -10,6 +10,7 @@ use FileAnalyzer\Analyzer\ServiceAnalyzer;
 use FileAnalyzer\Services\Tools;
 use FileAnalyzer\Services\Logger;
 use FileAnalyzer\Model\FileAnalyzed;
+use FileAnalyzer\Analyzer\PathAnalyzer;
 
 class FileAnalyzer
 {
@@ -22,7 +23,6 @@ class FileAnalyzer
     public const FILE_KIND_CONSTRAINT_VALIDATOR             = 'validator.constraint_validator';
     public const FILE_KIND_CONSTRAINT                       = 'validator.constraint';
 
-    public const FILE_KIND_UNKNOWN_FROM_CLASS               = 'service';
     public const FILE_KIND_VOTER                            = 'voter';
     public const FILE_KIND_USER_PROVIDER                    = 'security.user_provider';
     public const FILE_KIND_SIMPLE_PRE_AUTHENTICATOR         = 'security.simple_pre_authenticator';
@@ -72,17 +72,30 @@ class FileAnalyzer
     private $fileExtensionAnalyzer;
     private $serviceAnalyzer;
     private $diversAnalyzer;
+    private $pathAnalyzer;
+    private $customKinds;
     private $files = [];
     private $logger;
     private $tools;
 
-    public function __construct(Tools $tools, DiversAnalyzer $diversAnalyzer, FileExtensionAnalyzer $fileExtensionAnalyzer, ClassImplementationAnalyzer $classImplementationAnalyzer, ClassExtensionAnalyzer $classExtensionAnalyzer, Logger $logger, ServiceAnalyzer $serviceAnalyzer)
+    public function __construct(
+        Tools $tools,
+        DiversAnalyzer $diversAnalyzer,
+        FileExtensionAnalyzer $fileExtensionAnalyzer,
+        ClassImplementationAnalyzer $classImplementationAnalyzer,
+        ClassExtensionAnalyzer $classExtensionAnalyzer,
+        Logger $logger,
+        ServiceAnalyzer $serviceAnalyzer,
+        PathAnalyzer $pathAnalyzer,
+        array $customKinds = [])
     {
         $this->classImplementationAnalyzer = $classImplementationAnalyzer;
         $this->classExtensionAnalyzer = $classExtensionAnalyzer;
         $this->fileExtensionAnalyzer = $fileExtensionAnalyzer;
         $this->serviceAnalyzer = $serviceAnalyzer;
         $this->diversAnalyzer = $diversAnalyzer;
+        $this->pathAnalyzer = $pathAnalyzer;
+        $this->customKinds = $customKinds;
         $this->logger = $logger;
         $this->tools = $tools;
     }
@@ -265,9 +278,15 @@ class FileAnalyzer
                 return self::FILE_KIND_JMS_EXCLUSION_STRATEGY;
             case $this->classImplementationAnalyzer->isDataTransformer($filePath):
                 return self::FILE_KIND_DATA_TRANSFORMER;
-            case $this->diversAnalyzer->isUnknownFromClass($filePath):
-                return self::FILE_KIND_UNKNOWN_FROM_CLASS;
             default:
+                foreach ($this->customKinds as $kind) {
+                    $function = 'contains' . $kind['in_path'] . 'InPath';
+
+                    if ($this->pathAnalyzer->$function($filePath)) {
+                        return $kind['kind'];
+                    }
+                }
+
                 return self::FILE_KIND_UNKNOWN;
         }
     }

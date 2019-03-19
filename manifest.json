@@ -1,0 +1,5 @@
+{
+  "bundles": {
+      "FileAnalyzer\\FileAnalyzerBundle": ["dev"]
+  }
+}
