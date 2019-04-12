@@ -67,8 +67,12 @@ php kbunel:app:analyze --kind=unknown_kind
 
 This will output files that doesnt have been identified, you can specify add a new kind and get them from the path content, for example, if services from the folder `src\AppBundle\Service` has not been identified, you can add the configuration below and the FileAnalyzer will check the path to add it if it hasnt been found before. You can add as many as you want.
 
+If your services are in a different folder than `app/config/config.yml` or `app/config/config_test.yml`, you can specify the path in `services_file_path`.
+
 ```yaml
 file_analyzer:
+    file_analyzer:
+        services_file_path: 'app/config/services.yaml'
     from_path:
         - { kind: 'service', in_path: 'Service' }
         - { kind: 'model', in_path: 'Model' }

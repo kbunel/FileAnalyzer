@@ -36,12 +36,17 @@ class ServiceAnalyzer
         return $this->isTagged($args[0], $tag);
     }
 
+    public function getServicesFilesPaths(): array
+    {
+        return $this->servicesFilePath ? [$this->servicesFilePath] : self::CONFIG_FILES;
+    }
+
     private function isTagged(string $filePath, string $tag): bool
     {
         $namespace = $this->tools->getNamespace($filePath);
 
         if (!$this->services) {
-            $this->services = $this->getServicesFromFiles($this->servicesFilePath ? [$this->servicesFilePath] : self::CONFIG_FILES);
+            $this->services = $this->getServicesFromFiles($this->getServicesFilesPaths());
         }
 
         if (!isset($this->services[$namespace], $this->services[$namespace]['tags'])) {
@@ -69,7 +74,7 @@ class ServiceAnalyzer
             }, ARRAY_FILTER_USE_KEY);
         }
 
-        return $services['services'];
+        return isset($services['services']) ? $services['services'] : [];
     }
 
     private function getContent(array $files): array
