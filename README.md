@@ -3,18 +3,6 @@ FileAnalyzer is a tool to get information from files in your Symfony project
 Installation
 ============
 
-Applications that use Symfony Flex
-----------------------------------
-
-Open a command console, enter your project directory and execute:
-
-```console
-$ composer require kbunel/file-analyzer --dev
-```
-
-Applications that don't use Symfony Flex
-----------------------------------------
-
 ### Step 1: Download the Bundle
 
 Open a command console, enter your project directory and execute the
