@@ -37,6 +37,6 @@ class ClassImplementationAnalyzer
                 return false;
         }
 
-        return $reflector->implementsInterface($interface);
+        return class_exists($interface) ? $reflector->implementsInterface($interface) : false;
     }
 }
