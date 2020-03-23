@@ -1,7 +1,7 @@
 {
     "name": "kbunel/file-analyzer",
-	"type": "service",
-    "description": "This is a service used in some bundles",
+    "type": "service",
+    "description": "Analyze a Symfony Application files",
     "keywords": [ "file", "analyzer", "sf4", "Symfony", "Symfony 4" ],
     "license": "MIT",
     "authors": [
